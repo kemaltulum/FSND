@@ -140,14 +140,43 @@ class TriviaTestCase(unittest.TestCase):
 		self.assertTrue(data['success'])
 		self.assertTrue(len(data["questions"]) == 3)
 
-	def test_get_questions_by_category_fail_400(self):
-		id = 100 # Science
+	def test_get_questions_by_category_fail_404(self):
+		id = 100
 		res = self.client().get(f'/categories/{id}/questions')
 		data = json.loads(res.data)
 
-		self.assertEqual(res.status_code, 400)
+		self.assertEqual(res.status_code, 404)
 		self.assertFalse(data['success'])
 
+	def test_quizzes(self):
+		id = 1 # Science
+		previous_questions = []
+		questions = Question.query.order_by(Question.id).filter(Question.category == id).limit(2).all()
+		for question in questions:
+			previous_questions.append(question.format()['id'])
+		json_obj = {
+			"previous_questions": previous_questions,
+      "quiz_category": {
+				"id": id,
+				"type": "Science"
+			}
+		}
+		res = self.client().post(f'/quizzes', json=json_obj)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 200)
+		self.assertTrue(data['success'])
+
+		question = data['question']
+		found_prev = False
+
+		for prev_question in previous_questions:
+			if question['id'] == prev_question['id']:
+				found_prev = True
+
+		self.assertFalse(found_prev)
+
+		
 	"""
 	TODO
 	Write at least one test for each test for successful operation and for expected errors.
