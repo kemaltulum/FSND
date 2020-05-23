@@ -133,7 +133,7 @@ def create_app(test_config=None):
 						.filter(Question.question.ilike(f'%{search_term}%')).all()
 
 			current_questions = paginate_questions(request, selection)
-
+		
 			return jsonify({
 				'success': True,
 				'questions': current_questions,
@@ -167,22 +167,6 @@ def create_app(test_config=None):
 	Try using the word "title" to start. 
 	'''
 
-	@app.route('/questions/search', methods=['POST'])
-	def search_question():
-		body = request.get_json()
-
-		search_term = body.get('searchTerm', None)
-
-		if search_term is None:
-			abort(400)
-		
-		questions = Question.query.filter
-
-		question.insert()
-
-		return jsonify({
-			"success": True
-		})
 	'''
 	@TODO: 
 	Create a GET endpoint to get questions based on category. 
@@ -191,7 +175,25 @@ def create_app(test_config=None):
 	categories in the left column will cause only questions of that 
 	category to be shown. 
 	'''
+	@app.route('/categories/<int:category_id>/questions', methods=['GET'])
+	def get_questions_by_category(category_id):
 
+		
+		category = Category.query.get(category_id)
+		if not category:
+			abort(404)
+
+		selection = Question.query.order_by(Question.id) \
+			.filter(Question.category == category_id).all()
+		total_num_questions = len(selection)
+		current_questions = paginate_questions(request, selection)
+		
+		return jsonify({
+			"success": True,
+			"questions": current_questions,
+			"current_category": category.format()['type'],
+			"total_questions": total_num_questions
+		})
 
 	'''
 	@TODO: 

@@ -130,6 +130,24 @@ class TriviaTestCase(unittest.TestCase):
 		self.assertEqual(res.status_code, 400)
 		self.assertFalse(data['success'])
 		self.assertEqual(data['message'], 'invalid syntax')
+
+	def test_get_questions_by_category(self):
+		id = 1 # Science
+		res = self.client().get(f'/categories/{id}/questions')
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 200)
+		self.assertTrue(data['success'])
+		self.assertTrue(len(data["questions"]) == 3)
+
+	def test_get_questions_by_category_fail_400(self):
+		id = 100 # Science
+		res = self.client().get(f'/categories/{id}/questions')
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 400)
+		self.assertFalse(data['success'])
+
 	"""
 	TODO
 	Write at least one test for each test for successful operation and for expected errors.
