@@ -74,6 +74,31 @@
 		{% endfor %}
 	</div>
 </section>
+<section>
+	<div class="row">
+		<button id="deleteButton" class="btn btn-danger" data-id="{{ venue.id }}">
+			Delete
+		</button>
+	</div>
+</section>
+
+<script>
+	document.getElementById('deleteButton').onclick = function(e){
+		e.preventDefault();
+		const venueId = e.target.dataset['id'];
+		fetch('/venues/' + venueId, {
+			method: 'DELETE'
+		}).then(function(response){
+			return response.json();
+		}).then(function(jsonResponse){
+			if (jsonResponse.success) {
+				window.location.replace(new URL(window.location.href).origin);
+			}
+		}).catch(function(error){
+			console.log(error)
+		});
+	}
+</script>
 
 {% endblock %}
 
