@@ -171,10 +171,74 @@ class TriviaTestCase(unittest.TestCase):
 		found_prev = False
 
 		for prev_question in previous_questions:
-			if question['id'] == prev_question['id']:
+			if question['id'] == prev_question:
 				found_prev = True
 
 		self.assertFalse(found_prev)
+
+	def test_quizzes_series(self):
+		id = 0 # ALL
+		previous_questions = []
+
+		for ii in range(5):
+
+			json_obj = {
+				"previous_questions": previous_questions,
+					"quiz_category": {
+								"id": id,
+								"type": "ALL"
+							}
+				}
+			res = self.client().post(f'/quizzes', json=json_obj)
+			data = json.loads(res.data)
+
+			self.assertEqual(res.status_code, 200)
+			self.assertTrue(data['success'])
+
+			question = data['question']
+			found_prev = False
+
+			for prev_question in previous_questions:
+				if question['id'] == prev_question:
+					found_prev = True
+
+			self.assertFalse(found_prev)
+
+			previous_questions.append(question['id'])
+
+	def test_quizzes_series_limited(self):
+		id = 1 # Science
+		previous_questions = []
+
+		for ii in range(4):
+
+			json_obj = {
+				"previous_questions": previous_questions,
+					"quiz_category": {
+								"id": id,
+								"type": "ALL"
+							}
+				}
+			res = self.client().post(f'/quizzes', json=json_obj)
+			data = json.loads(res.data)
+
+			self.assertEqual(res.status_code, 200)
+			self.assertTrue(data['success'])
+
+			if ii == 3:
+				self.assertEqual(data['question'], None)
+				break
+
+			question = data['question']
+			found_prev = False
+
+			for prev_question in previous_questions:
+				if question['id'] == prev_question:
+					found_prev = True
+
+			self.assertFalse(found_prev)
+
+			previous_questions.append(question['id'])
 
 		
 	"""
