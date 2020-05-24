@@ -224,7 +224,6 @@ def create_app(test_config=None):
 		questions = [question.format() for question in selection]
 		questions_filtered = []
 		for question in questions:
-			print(question['id'])
 			if question['id'] not in previous_question_ids:
 				questions_filtered.append(question)
 
@@ -267,6 +266,14 @@ def create_app(test_config=None):
 			'error': 400,
 			'message': 'invalid syntax'
 		}), 400
+
+	@app.errorhandler(500)
+	def bad_request(error):
+		return jsonify({
+			'success': False,
+			'error': 500,
+			'message': 'internal server error'
+		}), 500
 	
 	return app
 
