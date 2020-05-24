@@ -89,6 +89,231 @@ GET '/categories'
 
 ```
 
+## API Documentation
+
+### Error Handling
+
+Errors are returned as JSON objects in the following format:
+```
+{
+    "success": False, 
+    "error": 400,
+    "message": "bad request"
+}
+```
+The API will return three error types when requests fail:
+- 400: Bad Request
+- 404: Resource Not Found
+- 422: Not Processable 
+- 500: Internal Server Error
+
+### Endpoints
+
+#### GET /categories 
+- General:
+    - Returns all available categories
+    - Returns a dictionary whose keys are ids of categories and values are corresponding category types.
+
+- **Example Request**: `curl 'http://localhost:5000/categories'`
+
+- **Expected Result**:
+
+    ```json
+    {
+		"categories": {
+			"1": "Science",
+			"2": "Art",
+			"3": "Geography",
+			"4": "History",
+			"5": "Entertainment",
+			"6": "Sports"
+		},
+		"success": true
+	}
+    ```
+
+#### GET \questions?page=int
+- General
+    - Retrieve all the questions with pagination. 
+	- Page size is 10. If no page is specified as a parameter, first page is retrieved.
+	- Returns questions for the given page, current category, all categories and total number of questions
+
+- **Example Request**: `curl 'http://localhost:5000/questions?page=2'`
+
+- **Example Response**: 
+```json
+	{
+		"categories": {
+			"1": "Science",
+			"2": "Art",
+			"3": "Geography",
+			"4": "History",
+			"5": "Entertainment",
+			"6": "Sports"
+		},
+		"current_category": null,
+		"questions": [
+			{
+			"answer": "Agra",
+			"category": 3,
+			"difficulty": 2,
+			"id": 15,
+			"question": "The Taj Mahal is located in which Indian city?"
+			},
+			{
+			"answer": "Escher",
+			"category": 2,
+			"difficulty": 1,
+			"id": 16,
+			"question": "Which Dutch graphic artist–initials M C was a creator of optical illusions?"
+			},
+		],
+		"success": true,
+		"total_questions": 21
+	}
+```
+
+#### DELETE /questions/<int:question_id>
+- General
+	- Deletes the question with given id 
+
+- **Example Request:** `curl --request DELETE 'http://localhost:5000/questions/26'`
+
+- **Example Response:**
+```json 
+	{
+		"deleted": 26,
+		"success": true
+	}
+```
+
+
+#### POST /questions
+- General
+	- Creates a new question or searches for a question.
+	- Requires the question and answer text, category, and difficulty score for creating question.
+	- Requires search term for searching.
+
+- **Example Request:** (Create)
+```bash 
+	curl --location --request POST 'http://localhost:5000/questions' \
+		--header 'Content-Type: application/json' \
+		--data-raw '{
+			"question": "What is the most crowded city in Turkey?",
+			"answer": "İstanbul",
+			"difficulty": 3,
+			"category": 3
+		}'
+```
+
+- **Example Response:**
+```json 
+	{
+		"success": true
+	}
+```
+
+- **Example Request:** (Search)
+```bash
+	curl --location --request POST 'http://localhost:5000/questions' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+		"searchTerm": "title"
+	}'
+```
+
+- **Example Response:** 
+```json
+    {
+		"current_category": null,
+		"questions": [
+			{
+			"answer": "Maya Angelou",
+			"category": 4,
+			"difficulty": 2,
+			"id": 5,
+			"question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+			},
+			{
+			"answer": "Edward Scissorhands",
+			"category": 5,
+			"difficulty": 3,
+			"id": 6,
+			"question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+			}
+		],
+		"success": true,
+		"total_questions": 2
+	}
+```
+
+#### GET /categories/<int:category_id>/questions
+- General
+	- Retrieve questions based on category. 
+
+- **Example Request:** `curl 'http://localhost:5000/categories/1/questions'`
+
+- **Example Response:**
+```json
+	{
+		"current_category": "Science",
+		"questions": [
+			{
+			"answer": "The Liver",
+			"category": 1,
+			"difficulty": 4,
+			"id": 20,
+			"question": "What is the heaviest organ in the human body?"
+			},
+			{
+			"answer": "Alexander Fleming",
+			"category": 1,
+			"difficulty": 3,
+			"id": 21,
+			"question": "Who discovered penicillin?"
+			},
+			{
+			"answer": "Blood",
+			"category": 1,
+			"difficulty": 4,
+			"id": 22,
+			"question": "Hematology is a branch of medicine involving the study of what?"
+			}
+		],
+		"success": true,
+		"total_questions": 3
+	}
+```
+
+#### POST /quizzes
+- General
+    - Get random questions to play the quiz. 
+	- Requires category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
+	- If category is given with id 0, a random question is chosen from all questions.
+
+- **Example Request:**
+```bash
+	curl --request POST 'http://localhost:5000/quizzes' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+		"previous_questions": [],
+		"quiz_category": {"id": 1, "type": "Science"}
+	}'
+```
+
+- **Example Response:**
+```json
+	{
+		"question": {
+			"answer": "Blood",
+			"category": 1,
+			"difficulty": 4,
+			"id": 22,
+			"question": "Hematology is a branch of medicine involving the study of what?"
+		},
+		"success": true
+	}
+```
 
 ## Testing
 To run the tests, run
@@ -97,4 +322,9 @@ dropdb trivia_test
 createdb trivia_test
 psql trivia_test < trivia.psql
 python test_flaskr.py
+
+```
+
+```
+
 ```
