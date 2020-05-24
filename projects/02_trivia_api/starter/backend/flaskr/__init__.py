@@ -39,9 +39,23 @@ def create_app(test_config=None):
 		return response
 
 	'''
-	@TODO: 
-	Create an endpoint to handle GET requests 
-	for all available categories.
+	GET /categories 
+	Get all available categories
+
+	Example Request: curl 'http://localhost:5000/categories'
+
+	Expected Result:
+	{
+		"categories": {
+			"1": "Science",
+			"2": "Art",
+			"3": "Geography",
+			"4": "History",
+			"5": "Entertainment",
+			"6": "Sports"
+		},
+		"success": true
+	}
 	'''
 	@app.route('/categories', methods=['GET'])
 	def categories():
@@ -57,16 +71,46 @@ def create_app(test_config=None):
 
 
 	'''
-	@TODO: 
-	Create an endpoint to handle GET requests for questions, 
-	including pagination (every 10 questions). 
-	This endpoint should return a list of questions, 
-	number of total questions, current category, categories. 
+	GET \questions?page=1
+	Retrieve all the questions with pagination. 
+	Page size is 10. If no page is specified as a parameter, first page is retrieved.
+	Returns questions for the given page, current category, all categories and total number of questions
 
-	TEST: At this point, when you start the application
-	you should see questions and categories generated,
-	ten questions per page and pagination at the bottom of the screen for three pages.
-	Clicking on the page numbers should update the questions. 
+	Example Request: curl 'http://localhost:5000/questions?page=2'
+
+	Example Response: 
+
+	{
+		"categories": {
+			"1": "Science",
+			"2": "Art",
+			"3": "Geography",
+			"4": "History",
+			"5": "Entertainment",
+			"6": "Sports"
+		},
+		"current_category": null,
+		"questions": [
+			{
+			"answer": "Agra",
+			"category": 3,
+			"difficulty": 2,
+			"id": 15,
+			"question": "The Taj Mahal is located in which Indian city?"
+			},
+			{
+			"answer": "Escher",
+			"category": 2,
+			"difficulty": 1,
+			"id": 16,
+			"question": "Which Dutch graphic artist–initials M C was a creator of optical illusions?"
+			},
+			...
+		],
+		"success": true,
+		"total_questions": 21
+	}
+
 	'''
 	@app.route('/questions', methods=['GET'])
 	def retrieve_questions():
@@ -87,11 +131,16 @@ def create_app(test_config=None):
 		})
 
 	'''
-	@TODO: 
-	Create an endpoint to DELETE question using a question ID. 
+	DELETE /questions/<int:question_id>
+	Deletes the question with given id 
 
-	TEST: When you click the trash icon next to a question, the question will be removed.
-	This removal will persist in the database and when you refresh the page. 
+	Example Request: curl --request DELETE 'http://localhost:5000/questions/26'
+
+	Example Response: 
+	{
+		"deleted": 26,
+		"success": true
+	}
 	'''
 	@app.route('/questions/<int:question_id>', methods=['DELETE'])
 	def delete_question(question_id):
@@ -109,14 +158,56 @@ def create_app(test_config=None):
 
 
 	'''
-	@TODO: 
-	Create an endpoint to POST a new question, 
-	which will require the question and answer text, 
-	category, and difficulty score.
+	POST /questions
+	Creates a new question or searches for a question.
+	Requires the question and answer text, 
+	category, and difficulty score for creating question.
+	Requires search term for searching.
 
-	TEST: When you submit a question on the "Add" tab, 
-	the form will clear and the question will appear at the end of the last page
-	of the questions list in the "List" tab.  
+	Example Request: (Create)
+	curl --location --request POST 'http://localhost:5000/questions' \
+		--header 'Content-Type: application/json' \
+		--data-raw '{
+			"question": "What is the most crowded city in Turkey?",
+			"answer": "İstanbul",
+			"difficulty": 3,
+			"category": 3
+		}'
+
+	Example Response: 
+	{
+		"success": true
+	}
+
+	Example Request: (Search)
+	curl --location --request POST 'http://localhost:5000/questions' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+		"searchTerm": "title"
+	}'
+
+	Example Response: 
+	{
+		"current_category": null,
+		"questions": [
+			{
+			"answer": "Maya Angelou",
+			"category": 4,
+			"difficulty": 2,
+			"id": 5,
+			"question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+			},
+			{
+			"answer": "Edward Scissorhands",
+			"category": 5,
+			"difficulty": 3,
+			"id": 6,
+			"question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+			}
+		],
+		"success": true,
+		"total_questions": 2
+	}
 	'''
 	@app.route('/questions', methods=['POST'])
 	def create_question():
@@ -156,24 +247,42 @@ def create_app(test_config=None):
 			return jsonify({
 				"success": True
 			})
-	'''
-	@TODO: 
-	Create a POST endpoint to get questions based on a search term. 
-	It should return any questions for whom the search term 
-	is a substring of the question. 
-
-	TEST: Search by any phrase. The questions list will update to include 
-	only question that include that string within their question. 
-	Try using the word "title" to start. 
-	'''
 
 	'''
-	@TODO: 
-	Create a GET endpoint to get questions based on category. 
+	GET /categories/<int:category_id>/questions
+	Retrieve questions based on category. 
 
-	TEST: In the "List" tab / main screen, clicking on one of the 
-	categories in the left column will cause only questions of that 
-	category to be shown. 
+	Example Request: curl 'http://localhost:5000/categories/1/questions'
+
+	Example Response:
+	{
+		"current_category": "Science",
+		"questions": [
+			{
+			"answer": "The Liver",
+			"category": 1,
+			"difficulty": 4,
+			"id": 20,
+			"question": "What is the heaviest organ in the human body?"
+			},
+			{
+			"answer": "Alexander Fleming",
+			"category": 1,
+			"difficulty": 3,
+			"id": 21,
+			"question": "Who discovered penicillin?"
+			},
+			{
+			"answer": "Blood",
+			"category": 1,
+			"difficulty": 4,
+			"id": 22,
+			"question": "Hematology is a branch of medicine involving the study of what?"
+			}
+		],
+		"success": true,
+		"total_questions": 3
+	}
 	'''
 	@app.route('/categories/<int:category_id>/questions', methods=['GET'])
 	def get_questions_by_category(category_id):
@@ -196,15 +305,33 @@ def create_app(test_config=None):
 		})
 
 	'''
-	@TODO: 
-	Create a POST endpoint to get questions to play the quiz. 
-	This endpoint should take category and previous question parameters 
+	POST /quizzes
+	Get random questions to play the quiz. 
+	Requires category and previous question parameters 
 	and return a random questions within the given category, 
 	if provided, and that is not one of the previous questions. 
+	If category is given with id 0, a random question is chosen from all questions.
 
-	TEST: In the "Play" tab, after a user selects "All" or a category,
-	one question at a time is displayed, the user is allowed to answer
-	and shown whether they were correct or not. 
+	Example Request:
+	curl --request POST 'http://localhost:5000/quizzes' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+		"previous_questions": [],
+		"quiz_category": {"id": 1, "type": "Science"}
+	}'
+
+	Example Response:
+	{
+		"question": {
+			"answer": "Blood",
+			"category": 1,
+			"difficulty": 4,
+			"id": 22,
+			"question": "Hematology is a branch of medicine involving the study of what?"
+		},
+		"success": true
+	}
+
 	'''
 
 	@app.route('/quizzes', methods=['POST'])
@@ -215,7 +342,13 @@ def create_app(test_config=None):
 		previous_question_ids = body.get('previous_questions', [])
 		quiz_category = body.get('quiz_category', None)
 
-		if quiz_category is None or quiz_category['id'] == 0:
+		if quiz_category is None or type(quiz_category) is not type({}):
+			abort(400)
+
+		if 'id' not in quiz_category:
+			abort(400)
+
+		if quiz_category['id'] == 0:
 			selection = Question.query.all()
 		else:
 			selection = Question.query.order_by(Question.id) \
@@ -268,7 +401,7 @@ def create_app(test_config=None):
 		}), 400
 
 	@app.errorhandler(500)
-	def bad_request(error):
+	def server_error(error):
 		return jsonify({
 			'success': False,
 			'error': 500,
