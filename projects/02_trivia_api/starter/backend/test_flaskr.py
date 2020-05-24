@@ -240,6 +240,20 @@ class TriviaTestCase(unittest.TestCase):
 
 			previous_questions.append(question['id'])
 
+	def test_quizzes_series_fail_400(self):
+		id = 0 # ALL
+		previous_questions = []
+
+		json_obj = {
+			"previous_questions": previous_questions,
+				"quiz_category": id
+			}
+		res = self.client().post(f'/quizzes', json=json_obj)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 400)
+		self.assertFalse(data['success'])
+
 		
 	"""
 	TODO
