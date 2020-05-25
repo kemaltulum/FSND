@@ -7,8 +7,9 @@ from urllib.request import urlopen
 
 """
 https://fsnd-kml.auth0.com/authorize?audience=Trial&response_type=token&client_id=OjyTxs32jUewW0U7ds0gHPP2Qonic0u5&redirect_uri=http://localhost:8100/login-results
-
+https://fsnd-kml.auth0.com/.well-known/jwks.json
 """
+
 AUTH0_DOMAIN = 'fsnd-kml.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'Trial'
@@ -145,15 +146,17 @@ def verify_decode_jwt(token):
                 'code': 'invalid_claims',
                 'description': 'Incorrect claims. Please, check the audience and issuer.'
             }, 401)
+
         except Exception:
             raise AuthError({
                 'code': 'invalid_header',
                 'description': 'Unable to parse authentication token.'
             }, 400)
+
     raise AuthError({
-                'code': 'invalid_header',
-                'description': 'Unable to find the appropriate key.'
-            }, 400)
+        'code': 'invalid_header',
+        'description': 'Unable to find the appropriate key.'
+    }, 400)
 
 
 '''
@@ -174,6 +177,5 @@ def requires_auth(permission=''):
             payload = verify_decode_jwt(token)
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
-
         return wrapper
     return requires_auth_decorator
