@@ -85,6 +85,9 @@ def create_drink(payload):
     if not title or not recipe:
         abort(400)
 
+    if not isinstance(recipe, list):
+        recipe = [recipe]
+
     new_drink = Drink(title=title, recipe=str(json.dumps(recipe)))
 
     new_drink.insert()
@@ -106,7 +109,31 @@ def create_drink(payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drink(payload, id):
 
+    updated_drink = Drink.query.get(id)
+
+    if not updated_drink:
+        abort(404)
+
+    body = request.get_json()
+
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+
+    if title:
+        updated_drink.title = title
+    if recipe:
+        updated_drink.recipe = recipe
+
+    updated_drink.update()
+
+    return jsonify({
+        "success": True,
+        "drinks": updated_drink.long()
+    })
 
 '''
 @TODO implement endpoint
@@ -118,7 +145,21 @@ def create_drink(payload):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(payload, id):
 
+    deleted_drink = Drink.query.get(id)
+
+    if not deleted_drink:
+        abort(404)
+
+    deleted_drink.delete()
+
+    return jsonify({
+        "success": True,
+        "delete": id
+    })
 
 ## Error Handling
 
@@ -137,7 +178,6 @@ def not_found(error):
         "error": 404,
         "message": "resource not found"
         }), 404
-
 
 @app.errorhandler(400)
 def bad_request(error):
