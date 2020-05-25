@@ -5,9 +5,13 @@ from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
+"""
+https://fsnd-kml.auth0.com/authorize?audience=Trial&response_type=token&client_id=OjyTxs32jUewW0U7ds0gHPP2Qonic0u5&redirect_uri=http://localhost:8100/login-results
+
+"""
+AUTH0_DOMAIN = 'fsnd-kml.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'dev'
+API_AUDIENCE = 'Trial'
 
 ## AuthError Exception
 '''
@@ -73,10 +77,10 @@ def get_token_auth_header():
 '''
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
-                        raise AuthError({
-                            'code': 'invalid_claims',
-                            'description': 'Permissions not included in JWT.'
-                        }, 400)
+        raise AuthError({
+            'code': 'invalid_claims',
+            'description': 'Permissions not included in JWT.'
+        }, 400)
 
     if permission not in payload['permissions']:
         raise AuthError({
