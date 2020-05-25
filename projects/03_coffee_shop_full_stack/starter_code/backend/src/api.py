@@ -16,17 +16,30 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-# db_drop_and_create_all()
+#db_drop_and_create_all()
 
 ## ROUTES
 '''
-@TODO implement endpoint
-    GET /drinks
-        it should be a public endpoint
-        it should contain only the drink.short() data representation
+GET /drinks
+    public endpoint
+    retrieves drinks with their short representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
+
 '''
+@app.route('/drinks', methods=['GET'])
+def retrieve_drinks():
+    drinks = Drink.query.all()
+
+    if len(drinks) == 0:
+        abort(404)
+
+    drinks = list(map(lambda drink: drink.short(), drinks))
+
+    return jsonify({
+        "success": True,
+        "drinks": drinks
+    })
 
 
 '''
