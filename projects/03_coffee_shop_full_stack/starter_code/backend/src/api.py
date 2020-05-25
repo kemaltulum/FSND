@@ -74,6 +74,25 @@ def retrieve_drinks_with_detail(payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def create_drink(payload):
+    body = request.get_json()
+
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+
+    if not title or not recipe:
+        abort(400)
+
+    new_drink = Drink(title=title, recipe=str(json.dumps(recipe)))
+
+    new_drink.insert()
+    
+    return jsonify({
+        "success": True,
+        "drinks": new_drink.long()
+    })
 
 
 '''
@@ -112,7 +131,7 @@ def unprocessable(error):
         }), 422
 
 @app.errorhandler(404)
-def unprocessable(error):
+def not_found(error):
     return jsonify({
         "success": False, 
         "error": 404,
@@ -132,7 +151,7 @@ def unprocessable(error):
     error handler should conform to general task above 
 '''
 @app.errorhandler(AuthError)
-def unprocessable(auth_error):
+def auth_error(auth_error):
     return jsonify({
         "success": False, 
         "error": auth_error.status_code,
