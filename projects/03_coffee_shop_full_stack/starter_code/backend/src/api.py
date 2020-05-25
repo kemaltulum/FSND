@@ -12,7 +12,7 @@ setup_db(app)
 CORS(app)
 
 '''
-@TODO uncomment the following line to initialize the datbase
+@TODO uncomment the following line to initialize the database
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
@@ -83,18 +83,22 @@ def create_drink(payload):
     recipe = body.get('recipe', None)
 
     if not title or not recipe:
-        abort(400)
+        abort(400, 'Title or recipe is missing')
 
     if not isinstance(recipe, list):
         recipe = [recipe]
 
-    new_drink = Drink(title=title, recipe=str(json.dumps(recipe)))
+    try:
+        new_drink = Drink(title=title, recipe=str(json.dumps(recipe)))
+        new_drink.insert()
+    except Exception as e:
+        print(e)
+        abort(400, "New drink cannot be created due to violation on unique constraint: drink.title")
 
-    new_drink.insert()
     
     return jsonify({
         "success": True,
-        "drinks": new_drink.long()
+        "drinks": [new_drink.long()]
     })
 
 
@@ -132,7 +136,7 @@ def update_drink(payload, id):
 
     return jsonify({
         "success": True,
-        "drinks": updated_drink.long()
+        "drinks": [updated_drink.long()]
     })
 
 '''
@@ -161,6 +165,12 @@ def delete_drink(payload, id):
         "delete": id
     })
 
+def get_error_message(error, default_message):
+    try:
+        return error.description
+    except:
+        return default_message
+
 ## Error Handling
 
 @app.errorhandler(422)
@@ -168,7 +178,7 @@ def unprocessable(error):
     return jsonify({
         "success": False, 
         "error": 422,
-        "message": "unprocessable"
+        "message": get_error_message(error, "unprocessable"),
         }), 422
 
 @app.errorhandler(404)
@@ -176,7 +186,7 @@ def not_found(error):
     return jsonify({
         "success": False, 
         "error": 404,
-        "message": "resource not found"
+        "message": get_error_message(error, "resource not found")
         }), 404
 
 @app.errorhandler(400)
@@ -184,7 +194,7 @@ def bad_request(error):
     return jsonify({
         "success": False, 
         "error": 400,
-        "message": "bad request"
+        "message": get_error_message(error, "bad request")
         }), 400
 
 '''
