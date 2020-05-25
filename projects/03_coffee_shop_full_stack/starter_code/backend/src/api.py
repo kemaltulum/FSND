@@ -51,7 +51,7 @@ def retrieve_drinks():
 '''
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
-def retrieve_drinks_with_detail():
+def retrieve_drinks_with_detail(payload):
     drinks = Drink.query.all()
 
     if len(drinks) == 0:
@@ -131,3 +131,10 @@ def unprocessable(error):
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
 '''
+@app.errorhandler(AuthError)
+def unprocessable(auth_error):
+    return jsonify({
+        "success": False, 
+        "error": auth_error.status_code,
+        "message": auth_error.error['description']
+        }), auth_error.status_code
