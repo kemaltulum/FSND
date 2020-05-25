@@ -43,13 +43,26 @@ def retrieve_drinks():
 
 
 '''
-@TODO implement endpoint
     GET /drinks-detail
-        it should require the 'get:drinks-detail' permission
-        it should contain the drink.long() data representation
+    requires the 'get:drinks-detail' permission
+    retrieves drinks with their long representation (For Barista Role)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks-detail', methods=['GET'])
+@requires_auth('get:drinks-detail')
+def retrieve_drinks_with_detail():
+    drinks = Drink.query.all()
+
+    if len(drinks) == 0:
+        abort(404)
+
+    drinks = list(map(lambda drink: drink.long(), drinks))
+
+    return jsonify({
+        "success": True,
+        "drinks": drinks
+    })
 
 
 '''
