@@ -32,7 +32,7 @@ def retrieve_drinks():
     drinks = Drink.query.all()
 
     if len(drinks) == 0:
-        abort(404)
+        abort(404, 'No drinks found')
 
     drinks = list(map(lambda drink: drink.short(), drinks))
 
@@ -55,7 +55,7 @@ def retrieve_drinks_with_detail(payload):
     drinks = Drink.query.all()
 
     if len(drinks) == 0:
-        abort(404)
+        abort(404, 'No drinks found')
 
     drinks = list(map(lambda drink: drink.long(), drinks))
 
@@ -66,7 +66,6 @@ def retrieve_drinks_with_detail(payload):
 
 
 '''
-@TODO implement endpoint
     POST /drinks
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
@@ -103,7 +102,6 @@ def create_drink(payload):
 
 
 '''
-@TODO implement endpoint
     PATCH /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -120,7 +118,7 @@ def update_drink(payload, id):
     updated_drink = Drink.query.get(id)
 
     if not updated_drink:
-        abort(404)
+        abort(404, 'Drink with id: ' + str(id) + ' could not be found.')
 
     body = request.get_json()
 
@@ -140,7 +138,6 @@ def update_drink(payload, id):
     })
 
 '''
-@TODO implement endpoint
     DELETE /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -156,7 +153,7 @@ def delete_drink(payload, id):
     deleted_drink = Drink.query.get(id)
 
     if not deleted_drink:
-        abort(404)
+        abort(404, 'Drink with id: ' + str(id) + ' could not be found.')
 
     deleted_drink.delete()
 
@@ -197,16 +194,6 @@ def bad_request(error):
         "message": get_error_message(error, "bad request")
         }), 400
 
-'''
-@TODO implement error handler for 404
-    error handler should conform to general task above 
-'''
-
-
-'''
-@TODO implement error handler for AuthError
-    error handler should conform to general task above 
-'''
 @app.errorhandler(AuthError)
 def auth_error(auth_error):
     return jsonify({
